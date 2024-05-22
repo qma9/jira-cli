@@ -1,0 +1,8 @@
+# Build target for workspace 
+/target
+
+# Notes
+TODO.md
+
+# Data
+**/data/

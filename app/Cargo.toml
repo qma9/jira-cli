@@ -1,0 +1,11 @@
+[package]
+name = "jira-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+database = { path = "../database" }
+
+[[bin]]
+name = "app"
+path = "src/main.rs"
