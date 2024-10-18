@@ -7,3 +7,9 @@ rust_conventions.md
 
 # Data
 **/data/
+
+# vscode settings
+.vscode/
+
+# Misc
+database/src/exp
