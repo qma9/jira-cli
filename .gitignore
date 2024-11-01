@@ -1,5 +1,6 @@
 # Build target for workspace 
 /target
+.DS_Store
 
 # Notes
 TODO.md
