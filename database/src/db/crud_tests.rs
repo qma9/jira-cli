@@ -1,8 +1,6 @@
 #[cfg(test)]
 use super::{Epic, JiraDatabase, Status, Story};
-use crate::{
-    db_tests::MockDB,
-};
+use crate::db::db_tests::MockDB;
 
 #[test]
 fn create_epic_should_work() {
@@ -269,7 +267,7 @@ fn update_story_status_should_work() {
 }
 
 mod db_tests {
-    use crate::{
+    use crate::db::{
         models::{DBState, Epic, Status, Story},
         Database, JSONFileDatabase,
     };
