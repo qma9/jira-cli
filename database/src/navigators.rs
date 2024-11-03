@@ -1,9 +1,11 @@
-use anyhow::{Context, Ok, Result};  //anyhow::anyhow removed not found
+#[allow(unused_imports, dead_code)]
+use anyhow::{anyhow, Context, Ok, Result};
 use std::rc::Rc;
 
+#[allow(unused_imports)]
 use crate::{
+    db::models::Action,
     db::JiraDatabase,
-    models::Action,
     ui::{EpicDetail, HomePage, Page, Prompts, StoryDetail},
 };
 
@@ -15,44 +17,100 @@ pub struct Navigator {
 
 impl Navigator {
     pub fn new(db: Rc<JiraDatabase>) -> Self {
-        todo!()
+        Self {
+            pages: vec![Box::new(HomePage { db: Rc::clone(&db) })],
+            prompts: Prompts::new(),
+            db,
+        }
     }
 
     pub fn get_current_page(&self) -> Option<&Box<dyn Page>> {
-        todo!() // this should always return the last element in the pages vector
+        // this should always return the last element in the pages vector
+        self.pages.last()
     }
 
     pub fn handle_action(&mut self, action: Action) -> Result<()> {
         match action {
             Action::NavigateToEpicDetail { epic_id } => {
-                todo!() // create a new EpicDetail instance and add it to the pages vector
+                // create a new EpicDetail instance and add it to the pages vector
+                self.pages.push(Box::new(EpicDetail {
+                    epic_id,
+                    db: Rc::clone(&self.db),
+                }));
             }
             Action::NavigateToStoryDetail { epic_id, story_id } => {
-                todo!() // create a new StoryDetail instance and add it to the pages vector
+                // create a new StoryDetail instance and add it to the pages vector
+                self.pages.push(Box::new(StoryDetail {
+                    epic_id,
+                    story_id,
+                    db: Rc::clone(&self.db),
+                }));
             }
             Action::NavigateToPreviousPage => {
-                todo!() // remove the last page from the pages vector
+                // remove the last page from the pages vector
+                if !self.pages.is_empty() {
+                    self.pages.pop();
+                }
             }
             Action::CreateEpic => {
-                todo!() // prompt the user to create a new epic and persist it in the database
+                // prompt the user to create a new epic and persist it in the database
+                let epic = (self.prompts.create_epic)();
+                self.db
+                    .create_epic(epic)
+                    .with_context(|| anyhow!("failed to create epic!"))?;
             }
             Action::UpdateEpicStatus { epic_id } => {
-                todo!() // prompt the user to update status and persist it in the database
+                // prompt the user to update status and persist it in the database
+                let status = (self.prompts.update_status)();
+                if let Some(status) = status {
+                    self.db
+                        .update_epic_status(epic_id, status)
+                        .with_context(|| anyhow!("failed to update epic!"))?;
+                }
             }
             Action::DeleteEpic { epic_id } => {
-                todo!() // prompt the user to delete the epic and persist it in the database
+                // prompt the user to delete the epic and persist it in the database
+                if (self.prompts.delete_epic)() {
+                    self.db
+                        .delete_epic(epic_id)
+                        .with_context(|| anyhow!("failed to delete epic!"))?;
+
+                    if !self.pages.is_empty() {
+                        self.pages.pop();
+                    }
+                }
             }
             Action::CreateStory { epic_id } => {
-                todo!() // prompt the user to create a new story and persist it in the database
+                // prompt the user to create a new story and persist it in the database
+                let story = (self.prompts.create_story)();
+                self.db
+                    .create_story(story, epic_id)
+                    .with_context(|| anyhow!("failed to create story!"))?;
             }
             Action::UpdateStoryStatus { story_id } => {
-                todo!() // prompt the user to update status and persist it in the database
+                // prompt the user to update status and persist it in the database
+                let status = (self.prompts.update_status)();
+                if let Some(status) = status {
+                    self.db
+                        .update_story_status(story_id, status)
+                        .with_context(|| anyhow!("failed to update story!"))?;
+                }
             }
             Action::DeleteStory { epic_id, story_id } => {
-                todo!() // prompt the user to delete the story and persist it in the database
+                // prompt the user to delete the story and persist it in the database
+                if (self.prompts.delete_story)() {
+                    self.db
+                        .delete_story(epic_id, story_id)
+                        .with_context(|| anyhow!("failed to delete story!"))?;
+
+                    if !self.pages.is_empty() {
+                        self.pages.pop();
+                    }
+                }
             }
             Action::Exit => {
-                todo!() // remove all pages from the pages vector
+                // remove all pages from the pages vector
+                self.pages.clear()
             }
         }
 
@@ -74,8 +132,8 @@ impl Navigator {
 mod tests {
     use super::*;
     use crate::{
-        db::test_utils::MockDB,
-        models::{Epic, Status, Story},
+        db::db_tests::MockDB,
+        db::models::{Epic, Status, Story},
     };
 
     #[test]
