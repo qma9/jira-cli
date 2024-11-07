@@ -1,11 +1,7 @@
 [package]
-name = "database"
+name = "jira-cli"
 version = "0.1.0"
 edition = "2021"
-
-[lib]
-name = "database"
-path = "src/lib.rs"
 
 [dependencies]
 anyhow = "1.0"
@@ -13,6 +9,11 @@ serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 ellipse = "0.2.0"
 itertools = "0.13.0"
+clearscreen = "3.0.0"
 
 [dev-dependencies]
 tempfile = "3.3.0"
+
+[[bin]]
+name = "database"
+path = "src/main.rs"
