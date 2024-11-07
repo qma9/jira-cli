@@ -1,8 +1,7 @@
-#[allow(unused_imports, dead_code)]
+#![allow(unused_imports, dead_code)]
 use anyhow::{anyhow, Context, Ok, Result};
 use std::rc::Rc;
 
-#[allow(unused_imports)]
 use crate::{
     db::models::Action,
     db::JiraDatabase,
